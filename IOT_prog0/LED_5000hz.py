@@ -1,11 +1,12 @@
 from machine import Pin, PWM,ADC
 import time
 class LED_5000hz:
-    def init(self,pin,freq=5000):
-        self.led=PWM(Pin(pin, mode=Pin.OUT,freq=freq))
+    def __init__(self, pin, freq=5000):
+        self.pwm = PWM(Pin(pin, mode=Pin.OUT), freq=freq)
+        
         
     #funzione per impostare il duty cycle
-    def set_duty(self, duty_value):
+    def set_duty_raw(self, duty_value):
         self.pwm.duty(duty_value)
         
     #funzione per convertire una percentuale -> range 2^10-1=1023

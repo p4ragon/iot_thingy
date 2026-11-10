@@ -1,23 +1,26 @@
 from machine import Pin
 import time
 
-last_on = 0
-
 class BUTTON:
     def __init__(self, pin):
         self.button = Pin(pin, Pin.IN, Pin.PULL_DOWN)
+        self.last_press = 0
+        self.mod=False # 0: Automatico, 1: Manuale 
+        
     
-    def mod_toggle(irq, mod):
-        global last_on
-    
-        time_ms = time.ticks_ms() 
-        delay = time.ticks_diff(time_ms, last_on) 
-        if (delay < 200): # Se la differenza è inferiore a 200ms (tempo di debounce), ignora l'input.
-            return
-    
-        last_on = time_ms
-    
-        mod = (mod + 1) % 2
-        return mod
-    
-    
+    def _mod_toggle(self,pin):
+        """Handler ISR chiamato automaticamente dall'hardware su IRQ_RISING"""
+        now = time.ticks_ms()
+        if time.ticks_diff(now, self.last_press) < 200:
+            return  # Debounce: ignora rimbalzi sotto i 200ms
+        self.last_press = now
+        #si parte con modalità automatica.
+        self.mod= not self.mod
+        if self.mod:
+            print("Modalità manuale.")
+        else:
+            print("Modalità automatica.")
+
+    def get_mode(self):
+        """Metodo per leggere la modalità corrente nel ciclo principale"""
+        return self.mod
